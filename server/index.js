@@ -11,7 +11,6 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // In-memory storage (data persists while server is running)
-// For production, use a proper database like MongoDB Atlas or PostgreSQL
 let registrations = [];
 
 // Middleware
@@ -36,7 +35,6 @@ const writeRegistrations = (data) => {
 app.post('/api/register', (req, res) => {
   const { studentId, studentName, phoneNumber } = req.body;
 
-  // Validation
   if (!studentId || !studentName || !phoneNumber) {
     return res.status(400).json({ 
       success: false, 
@@ -46,7 +44,6 @@ app.post('/api/register', (req, res) => {
 
   const regs = readRegistrations();
   
-  // Check if student ID already exists
   const existing = regs.find(r => r.studentId === studentId);
   if (existing) {
     return res.status(409).json({ 
@@ -135,7 +132,7 @@ app.delete('/api/registrations/:id', (req, res) => {
 });
 
 // Serve index.html for all other routes (SPA support)
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
