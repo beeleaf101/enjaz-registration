@@ -1,8 +1,7 @@
-// Using JSONStorage.app - Free cloud JSON database (no signup required)
-// This provides a shared database that all users can access
+// Using backend API for shared database storage
+// All users will see the same data
 
-const STORAGE_URL = 'https://jsonstorage.app/api/v1/stores';
-const STORE_ID = 'enjaz-registration-kuwait'; // Public store ID
+const API_URL = '/api';
 
 interface Registration {
   id: string;
@@ -12,142 +11,67 @@ interface Registration {
   registeredAt: string;
 }
 
-// Generate a unique ID
-const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
-
-// Get all registrations from the cloud
+// Get all registrations from the backend
 export const getAllRegistrations = async (): Promise<{ success: boolean; data?: Registration[]; error?: string }> => {
   try {
-    const response = await fetch(`${STORAGE_URL}/${STORE_ID}`);
-    
-    if (response.status === 404) {
-      // Store doesn't exist yet, return empty array
-      return { success: true, data: [] };
-    }
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch data');
-    }
-    
+    const response = await fetch(`${API_URL}/registrations`);
     const result = await response.json();
-    return { success: true, data: result.data || [] };
+    
+    if (result.success) {
+      return { success: true, data: result.data };
+    } else {
+      return { success: false, error: result.message };
+    }
   } catch (error: any) {
     console.error('Error fetching registrations:', error);
-    // Fallback to localStorage if cloud fails
-    const localData = JSON.parse(localStorage.getItem('enjaz_registrations') || '[]');
-    return { success: true, data: localData };
+    return { success: false, error: error.message };
   }
 };
 
-// Add a new registration to the cloud
+// Add a new registration to the backend
 export const addRegistration = async (data: {
   studentId: string;
   studentName: string;
   phoneNumber: string;
 }): Promise<{ success: boolean; id?: string; error?: string }> => {
   try {
-    // First, get existing registrations
-    const existingResult = await getAllRegistrations();
-    
-    if (!existingResult.success) {
-      throw new Error('Failed to fetch existing data');
-    }
-    
-    const existing = existingResult.data || [];
-    
-    // Check for duplicate student ID
-    if (existing.find((r: Registration) => r.studentId === data.studentId)) {
-      return { success: false, error: 'الرقم الأكاديمي مسجل مسبقاً' };
-    }
-    
-    // Create new registration
-    const newRegistration: Registration = {
-      id: generateId(),
-      ...data,
-      registeredAt: new Date().toISOString()
-    };
-    
-    // Add to list
-    existing.push(newRegistration);
-    
-    // Save to cloud
-    const response = await fetch(`${STORAGE_URL}/${STORE_ID}`, {
-      method: 'PUT',
+    const response = await fetch(`${API_URL}/register`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data: existing }),
+      body: JSON.stringify(data),
     });
     
-    if (!response.ok) {
-      throw new Error('Failed to save data');
+    const result = await response.json();
+    
+    if (result.success) {
+      return { success: true, id: result.data.id };
+    } else {
+      return { success: false, error: result.message };
     }
-    
-    // Also save to localStorage as backup
-    localStorage.setItem('enjaz_registrations', JSON.stringify(existing));
-    
-    return { success: true, id: newRegistration.id };
   } catch (error: any) {
     console.error('Error adding registration:', error);
-    
-    // Fallback: save to localStorage only
-    const existing = JSON.parse(localStorage.getItem('enjaz_registrations') || '[]');
-    
-    if (existing.find((r: Registration) => r.studentId === data.studentId)) {
-      return { success: false, error: 'الرقم الأكاديمي مسجل مسبقاً' };
-    }
-    
-    const newRegistration: Registration = {
-      id: generateId(),
-      ...data,
-      registeredAt: new Date().toISOString()
-    };
-    
-    existing.push(newRegistration);
-    localStorage.setItem('enjaz_registrations', JSON.stringify(existing));
-    
-    return { success: true, id: newRegistration.id };
+    return { success: false, error: error.message };
   }
 };
 
-// Delete a registration from the cloud
+// Delete a registration from the backend
 export const deleteRegistration = async (id: string): Promise<{ success: boolean; error?: string }> => {
   try {
-    // Get existing registrations
-    const existingResult = await getAllRegistrations();
-    
-    if (!existingResult.success) {
-      throw new Error('Failed to fetch existing data');
-    }
-    
-    const existing = existingResult.data || [];
-    const updated = existing.filter((r: Registration) => r.id !== id);
-    
-    // Save to cloud
-    const response = await fetch(`${STORAGE_URL}/${STORE_ID}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ data: updated }),
+    const response = await fetch(`${API_URL}/registrations/${id}`, {
+      method: 'DELETE',
     });
     
-    if (!response.ok) {
-      throw new Error('Failed to delete data');
+    const result = await response.json();
+    
+    if (result.success) {
+      return { success: true };
+    } else {
+      return { success: false, error: result.message };
     }
-    
-    // Update localStorage
-    localStorage.setItem('enjaz_registrations', JSON.stringify(updated));
-    
-    return { success: true };
   } catch (error: any) {
     console.error('Error deleting registration:', error);
-    
-    // Fallback: delete from localStorage only
-    const existing = JSON.parse(localStorage.getItem('enjaz_registrations') || '[]');
-    const updated = existing.filter((r: Registration) => r.id !== id);
-    localStorage.setItem('enjaz_registrations', JSON.stringify(updated));
-    
-    return { success: true };
+    return { success: false, error: error.message };
   }
 };
