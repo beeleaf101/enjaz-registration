@@ -1,0 +1,214 @@
+/* Import Arabic Font */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap');
+
+/* Global Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  direction: rtl;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #1e3a8a, #14b8a6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #1e40af, #0d9488);
+}
+
+/* Logo Container */
+.logo-container {
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.logo-container:hover {
+  transform: scale(1.05);
+}
+
+.logo-container::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+  border-radius: 50%;
+}
+
+.logo-container:hover::after {
+  opacity: 1;
+}
+
+/* Form Input Focus Animation */
+input:focus {
+  animation: inputGlow 0.3s ease forwards;
+}
+
+@keyframes inputGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+}
+
+/* Button Pulse Animation */
+@keyframes buttonPulse {
+  0%, 100% {
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 10px 35px -5px rgba(59, 130, 246, 0.5);
+  }
+}
+
+button[type="submit"] {
+  animation: buttonPulse 2s ease-in-out infinite;
+}
+
+/* Background Gradient Animation */
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.bg-gradient-to-br {
+  background-size: 200% 200%;
+  animation: gradientShift 15s ease infinite;
+}
+
+/* Floating Animation for Background Shapes */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-20px) rotate(2deg);
+  }
+  66% {
+    transform: translateY(10px) rotate(-2deg);
+  }
+}
+
+/* Success Check Animation */
+@keyframes checkBounce {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.success-message svg {
+  animation: checkBounce 0.6s ease-out;
+}
+
+/* Card Hover Effect */
+.bg-white\/80,
+.bg-white\/90 {
+  transition: all 0.3s ease;
+}
+
+.bg-white\/80:hover,
+.bg-white\/90:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+/* Input Placeholder Styling */
+input::placeholder {
+  color: #9ca3af;
+  opacity: 0.7;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .bg-gradient-to-br {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  header img {
+    width: 80px !important;
+    height: 80px !important;
+  }
+  
+  h1 {
+    font-size: 2rem !important;
+  }
+  
+  .lg\:w-2\/5,
+  .lg\:w-3\/5 {
+    width: 100%;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .bg-gradient-to-br {
+    animation: none;
+  }
+}
+
+/* Glass Morphism Enhancement */
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.backdrop-blur-xl {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/* Text Selection */
+::selection {
+  background: rgba(20, 184, 166, 0.3);
+  color: #1e3a8a;
+}
+
+/* Focus Visible for Accessibility */
+:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
