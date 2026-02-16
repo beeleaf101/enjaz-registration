@@ -3,6 +3,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,8 +11,35 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// In-memory storage (data persists while server is running)
-let registrations = [];
+// File-based storage - persists data even after server restarts
+const DATA_FILE = path.join(__dirname, 'data.json');
+
+// Initialize data file if it doesn't exist
+if (!fs.existsSync(DATA_FILE)) {
+  fs.writeFileSync(DATA_FILE, JSON.stringify([]));
+}
+
+// Helper function to read registrations from file
+const readRegistrations = () => {
+  try {
+    const data = fs.readFileSync(DATA_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading data file:', error);
+    return [];
+  }
+};
+
+// Helper function to write registrations to file
+const writeRegistrations = (data) => {
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Error writing data file:', error);
+    return false;
+  }
+};
 
 // Middleware
 app.use(cors());
@@ -19,17 +47,6 @@ app.use(bodyParser.json());
 
 // Serve static files from the dist folder (frontend)
 app.use(express.static(path.join(__dirname, '../dist')));
-
-// Helper function to read registrations
-const readRegistrations = () => {
-  return registrations;
-};
-
-// Helper function to write registrations
-const writeRegistrations = (data) => {
-  registrations = data;
-  return true;
-};
 
 // POST - Save new registration
 app.post('/api/register', (req, res) => {
@@ -139,6 +156,7 @@ app.use((req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Data file: ${DATA_FILE}`);
   console.log(`API endpoints:`);
   console.log(`  POST /api/register - Register a new student`);
   console.log(`  GET  /api/registrations - Get all registrations`);
